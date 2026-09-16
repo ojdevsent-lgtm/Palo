@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['firebase_uid']) && newData.child('firebase_uid').val() === $uid"
+      }
+    },
+    "workspaces": {
+      "$workspace_id": {
+        ".read": "auth != null && data.child('members').child(auth.uid).exists()",
+        ".write": "auth != null && (!data.exists() && newData.child('owner_user_id').val() === auth.uid)"
+      }
+    }
+  }
+}
