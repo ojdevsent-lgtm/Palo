@@ -67,13 +67,13 @@ func setup_platform_services(cloud, palo_account, local_workspace_manager):
 		if not cloud_service.is_connected("workspace_access_checked", self, "_on_workspace_access_checked"):
 			cloud_service.connect("workspace_access_checked", self, "_on_workspace_access_checked")
 
-func set_platform_status(text):
-	_set_status(text)
+func set_platform_status(text): _set_status(text)
 
 func set_platform_account(palo_account):
 	account = palo_account
 	if account and account.has_method("get_username"):
 		_set_account("Palo account ✓\n@" + account.get_username())
+	if sign_out_button: sign_out_button.disabled = false
 
 func load_cloud_workspaces():
 	if cloud_service and cloud_service.has_method("load_workspace_index"):
@@ -90,7 +90,6 @@ func _build_ui():
 	subtitle.text = "Game development collaboration"
 	add_child(subtitle)
 	add_child(HSeparator.new())
-
 	var account_title = Label.new()
 	account_title.text = "Account"
 	account_title.add_font_override("font_size", 14)
@@ -102,7 +101,6 @@ func _build_ui():
 	plan_label = Label.new()
 	plan_label.text = "Plan: Free"
 	add_child(plan_label)
-
 	var auth_title = Label.new()
 	auth_title.text = "GitHub"
 	auth_title.add_font_override("font_size", 14)
@@ -121,7 +119,6 @@ func _build_ui():
 	sign_out_button.connect("pressed", self, "_on_sign_out")
 	add_child(sign_out_button)
 	add_child(HSeparator.new())
-
 	var workspace_title = Label.new()
 	workspace_title.text = "Your Workspaces"
 	workspace_title.add_font_override("font_size", 16)
@@ -130,7 +127,6 @@ func _build_ui():
 	workspace_list.rect_min_size = Vector2(0, 100)
 	workspace_list.connect("item_selected", self, "_on_workspace_selected")
 	add_child(workspace_list)
-
 	var create_title = Label.new()
 	create_title.text = "Create Workspace"
 	create_title.add_font_override("font_size", 14)
@@ -155,21 +151,19 @@ func _build_ui():
 	details_label.text = "No workspace selected."
 	details_label.autowrap = true
 	add_child(details_label)
-
 	var member_input = LineEdit.new()
 	member_input.name = "MemberUidInput"
 	member_input.placeholder_text = "Firebase UID to add"
 	add_child(member_input)
 	var add_member_button = Button.new()
 	add_member_button.text = "Add Team Member"
-	add_member_button.connect("pressed", self, "_on_add_member.bind(member_input)")
+	add_member_button.connect("pressed", self, "_on_add_member", [member_input])
 	add_child(add_member_button)
 	var access_button = Button.new()
 	access_button.text = "Check Workspace Access"
 	access_button.connect("pressed", self, "_on_check_access")
 	add_child(access_button)
 	add_child(HSeparator.new())
-
 	var project_title = Label.new()
 	project_title.text = "Project Repository"
 	project_title.add_font_override("font_size", 14)
@@ -182,7 +176,6 @@ func _build_ui():
 	repo_list.rect_min_size = Vector2(0, 120)
 	repo_list.connect("item_selected", self, "_on_repo_selected")
 	add_child(repo_list)
-
 	var team_title = Label.new()
 	team_title.text = "Team Activity"
 	team_title.add_font_override("font_size", 14)
@@ -190,7 +183,6 @@ func _build_ui():
 	team_list = ItemList.new()
 	team_list.rect_min_size = Vector2(0, 100)
 	add_child(team_list)
-
 	var upload_btn = Button.new()
 	upload_btn.text = "Upload My Work"
 	upload_btn.connect("pressed", self, "_on_upload")
@@ -228,15 +220,12 @@ func _on_auth_started(user_code, verification_uri, expires_in):
 	_set_status("GitHub code: " + user_code + "\nOpen " + verification_uri + " in your browser, enter the code, then return here.\nCode expires in about %d seconds." % expires_in)
 	OS.shell_open(verification_uri)
 
-func _on_auth_pending():
-	_set_status("Waiting for GitHub approval...")
+func _on_auth_pending(): _set_status("Waiting for GitHub approval...")
 
 func _on_auth_succeeded(access_token):
 	connect_button.disabled = false
-	if settings.save_token(access_token):
-		_set_status("GitHub connected. Signing in to Palo...")
-	else:
-		_set_status("GitHub connected, but the local token could not be saved.")
+	if settings.save_token(access_token): _set_status("GitHub connected. Signing in to Palo...")
+	else: _set_status("GitHub connected, but the local token could not be saved.")
 	pending_api_action = "profile"
 	github.get_profile()
 
@@ -264,17 +253,14 @@ func _on_github_request(result, response_code, body):
 		_refresh_repo_options()
 		_filter_repositories(repo_input.text)
 		_set_status("GitHub connected. Choose a repository and create a workspace.")
-	elif pending_api_action == "collaborators":
-		_show_team(body)
-	elif pending_api_action == "activity":
-		_show_activity(body)
+	elif pending_api_action == "collaborators": _show_team(body)
+	elif pending_api_action == "activity": _show_activity(body)
 
 func _refresh_repo_options():
 	if workspace_repo_option == null: return
 	workspace_repo_option.clear()
 	workspace_repo_option.add_item("Select GitHub repository")
-	for repo in repos:
-		workspace_repo_option.add_item(str(repo.get("full_name", repo.get("name", ""))))
+	for repo in repos: workspace_repo_option.add_item(str(repo.get("full_name", repo.get("name", ""))))
 
 func _filter_repositories(text):
 	if repo_list == null: return
@@ -282,24 +268,21 @@ func _filter_repositories(text):
 	var needle = str(text).to_lower()
 	for repo in repos:
 		var name = str(repo.get("full_name", repo.get("name", "")))
-		if needle == "" or name.to_lower().find(needle) >= 0:
-			repo_list.add_item(name)
+		if needle == "" or name.to_lower().find(needle) >= 0: repo_list.add_item(name)
 
 func _on_repo_selected(index):
-	var name = repo_list.get_item_text(index)
-	selected_repo = name
+	selected_repo = repo_list.get_item_text(index)
 	team_list.clear()
 	team_list.add_item("Loading team activity...")
 	pending_api_action = "collaborators"
-	github.get_collaborators(name)
+	github.get_collaborators(selected_repo)
 
 func _show_team(body):
 	team_list.clear()
 	if typeof(body) != TYPE_ARRAY:
 		team_list.add_item("Team information unavailable.")
 		return
-	if body.empty():
-		team_list.add_item("No visible collaborators found.")
+	if body.empty(): team_list.add_item("No visible collaborators found.")
 	else:
 		for member in body:
 			var login = str(member.get("login", "Unknown"))
@@ -332,17 +315,12 @@ func _friendly_event(event_type):
 
 func _on_create_workspace():
 	var name = workspace_name_input.text.strip_edges()
-	if name == "":
-		_set_status("Enter a workspace name.")
-		return
-	if workspace_repo_option.selected <= 0:
-		_set_status("Select a GitHub repository for the workspace.")
-		return
-	var repository = workspace_repo_option.get_item_text(workspace_repo_option.selected)
+	if name == "": _set_status("Enter a workspace name."); return
+	if workspace_repo_option.selected <= 0: _set_status("Select a GitHub repository for the workspace."); return
 	if cloud_service and account and account.has_method("get_uid") and account.get_uid() != "":
 		create_workspace_button.disabled = true
 		_set_status("Creating workspace securely in Firebase...")
-		cloud_service.create_workspace(name, engine_option.get_item_text(engine_option.selected).to_lower(), version_option.get_item_text(version_option.selected), repository)
+		cloud_service.create_workspace(name, engine_option.get_item_text(engine_option.selected).to_lower(), version_option.get_item_text(version_option.selected), workspace_repo_option.get_item_text(workspace_repo_option.selected))
 		return
 	_set_status("Sign in to Palo before creating a cloud workspace.")
 
@@ -360,33 +338,25 @@ func _on_cloud_workspace_created(success, data):
 	_set_status("Workspace created in Firebase ✓")
 
 func _on_cloud_workspace_index(success, data):
-	if not success or typeof(data) != TYPE_DICTIONARY:
-		return
+	if not success or typeof(data) != TYPE_DICTIONARY: return
 	if data.empty():
 		_set_status("No cloud workspaces yet. Create your first workspace.")
 		return
 	for workspace_id in data.keys():
-		if cloud_service:
-			cloud_service.load_workspace(str(workspace_id))
+		if cloud_service: cloud_service.load_workspace(str(workspace_id))
 
 func _on_cloud_workspace_loaded(success, data):
-	if not success or typeof(data) != TYPE_DICTIONARY:
-		return
-	if str(data.get("id", "")) == "":
-		return
+	if not success or typeof(data) != TYPE_DICTIONARY: return
+	if str(data.get("id", "")) == "": return
 	_upsert_workspace(data)
-	if active_workspace.empty():
-		active_workspace = data.duplicate(true)
+	if active_workspace.empty(): active_workspace = data.duplicate(true)
 	_update_workspace_details()
-	_refresh_workspace_list()
-	_save_local_workspaces()
 
 func _on_workspace_selected(index):
 	if index < 0 or index >= workspaces.size(): return
 	active_workspace = workspaces[index].duplicate(true)
 	_update_workspace_details()
-	if cloud_service and active_workspace.has("id"):
-		cloud_service.check_workspace_access(str(active_workspace.id))
+	if cloud_service and active_workspace.has("id"): cloud_service.check_workspace_access(str(active_workspace.get("id", "")))
 
 func _upsert_workspace(data):
 	var workspace_id = str(data.get("id", ""))
@@ -403,8 +373,7 @@ func _upsert_workspace(data):
 func _refresh_workspace_list():
 	if workspace_list == null: return
 	workspace_list.clear()
-	for workspace in workspaces:
-		workspace_list.add_item("%s  •  %s" % [str(workspace.get("name", "Workspace")), str(workspace.get("engine_version", "3.x"))])
+	for workspace in workspaces: workspace_list.add_item("%s  •  %s" % [str(workspace.get("name", "Workspace")), str(workspace.get("engine_version", "3.x"))])
 
 func _update_workspace_details():
 	if details_label == null: return
@@ -426,13 +395,9 @@ func _update_workspace_details():
 	plan_label.text = "Plan: " + plan.capitalize()
 
 func _on_add_member(member_input):
-	if active_workspace.empty() or not cloud_service:
-		_set_status("Select a workspace first.")
-		return
+	if active_workspace.empty() or not cloud_service: _set_status("Select a workspace first."); return
 	var member_uid = member_input.text.strip_edges()
-	if member_uid == "":
-		_set_status("Enter the Firebase UID of the member to add.")
-		return
+	if member_uid == "": _set_status("Enter the Firebase UID of the member to add."); return
 	_set_status("Checking workspace plan and membership...")
 	cloud_service.add_workspace_member(str(active_workspace.get("id", "")), member_uid)
 
@@ -440,16 +405,14 @@ func _on_workspace_member_added(success, data):
 	if success:
 		_set_status("Team member added successfully.")
 		if typeof(data) == TYPE_DICTIONARY and data.has("workspace"):
-			_upsert_workspace(data.workspace)
-			active_workspace = data.workspace.duplicate(true)
+			_upsert_workspace(data.get("workspace", {}))
+			active_workspace = data.get("workspace", {}).duplicate(true)
 			_update_workspace_details()
 	else:
 		_set_status(str(data.get("error", "Could not add team member.")) if typeof(data) == TYPE_DICTIONARY else "Could not add team member.")
 
 func _on_check_access():
-	if active_workspace.empty() or not cloud_service:
-		_set_status("Select a workspace first.")
-		return
+	if active_workspace.empty() or not cloud_service: _set_status("Select a workspace first."); return
 	cloud_service.check_workspace_access(str(active_workspace.get("id", "")))
 
 func _on_workspace_access_checked(success, data):
@@ -459,11 +422,10 @@ func _on_workspace_access_checked(success, data):
 	if bool(data.get("allowed", false)):
 		_set_status("Workspace access allowed. Role: %s. Plan: %s." % [str(data.get("role", "member")), str(data.get("plan_id", "free"))])
 	else:
-		_set_status("Workspace access denied: " + str(data.get("message", "This workspace is not shared with your account.")))
+		_set_status("Team access required. This project is currently using the Palo Free plan, which supports one person. Contact the workspace administrator to upgrade the plan before adding another person.")
 
 func _on_sign_out():
-	if cloud_service and cloud_service.has_method("sign_out"):
-		cloud_service.sign_out()
+	if cloud_service and cloud_service.has_method("sign_out"): cloud_service.sign_out()
 	if settings: settings.save_token("")
 	if github and github.has_method("set_token"): github.set_token("")
 	workspaces.clear()
