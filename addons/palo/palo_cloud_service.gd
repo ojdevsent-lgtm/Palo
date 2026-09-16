@@ -68,17 +68,18 @@ func create_workspace(workspace_name, engine_id, engine_version, repository_full
         engine_version
     )
     data["id"] = workspace_id
+    data["members"] = {}
+    data["members"][auth.get_uid()] = {
+        "role": "owner",
+        "joined_at": OS.get_unix_time()
+    }
     if repository_full_name != "":
         data["repository"] = {
             "provider": "github",
             "full_name": repository_full_name
         }
 
-    var success = database.save_workspace(workspace_id, data)
-    if success:
-        var membership = {"role": "owner", "joined_at": OS.get_unix_time()}
-        database.save_membership(workspace_id, auth.get_uid(), membership)
-    return success
+    return database.save_workspace(workspace_id, data)
 
 func load_workspace(workspace_id):
     if not is_ready() or not auth.is_signed_in():
@@ -94,5 +95,5 @@ func _on_database_request(request_name, success, data):
         emit_signal("profile_saved", success, data)
     elif name.begins_with("get:workspaces/"):
         emit_signal("workspace_loaded", success, data)
-    elif name.begins_with("put:workspaces/") and str(name).find("/members/") < 0:
+    elif name.begins_with("put:workspaces/"):
         emit_signal("workspace_created", success, data)
