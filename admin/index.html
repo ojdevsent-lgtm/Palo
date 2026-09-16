@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Palo Admin</title>
+<style>body{font-family:system-ui,sans-serif;max-width:1000px;margin:40px auto;padding:0 20px}button{padding:10px 14px;margin:6px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.card{border:1px solid #ddd;border-radius:10px;padding:18px}.value{font-size:28px;font-weight:700}#status{margin:16px 0;white-space:pre-wrap}</style>
+</head>
+<body>
+<h1>Palo Admin</h1>
+<p>Aggregate product operations dashboard.</p>
+<button id="login">Sign in with GitHub</button>
+<button id="refresh" disabled>Refresh metrics</button>
+<div id="status">Not signed in.</div>
+<div class="grid">
+<div class="card">Users<div id="users" class="value">—</div></div>
+<div class="card">Active users<div id="active" class="value">—</div></div>
+<div class="card">Workspaces<div id="workspaces" class="value">—</div></div>
+<div class="card">Paid workspaces<div id="paid" class="value">—</div></div>
+</div>
+<h2>Plans</h2><pre id="plans">—</pre>
+<h2>Engines</h2><pre id="engines">—</pre>
+<h2>Users by country</h2><pre id="countries">—</pre>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {getAuth, GithubAuthProvider, signInWithPopup} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {getFunctions, httpsCallable} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js';
+
+// Replace only the public Firebase web configuration below. Never put a service-account key here.
+const firebaseConfig={apiKey:'PASTE_FIREBASE_WEB_API_KEY_HERE',authDomain:'palo-vx.firebaseapp.com',projectId:'palo-vx',appId:'1:315319157646:web:c716c2d4e305a5e49edadf'};
+const app=initializeApp(firebaseConfig); const auth=getAuth(app); const functions=getFunctions(app,'us-central1');
+const status=document.getElementById('status');
+const provider=new GithubAuthProvider();
+async function refresh(){try{status.textContent='Loading metrics...';const result=await httpsCallable(functions,'getAdminMetrics')();const m=result.data;document.getElementById('users').textContent=m.total_users;document.getElementById('active').textContent=m.active_users;document.getElementById('workspaces').textContent=m.total_workspaces;document.getElementById('paid').textContent=m.paid_workspaces;document.getElementById('plans').textContent=JSON.stringify(m.plans,null,2);document.getElementById('engines').textContent=JSON.stringify(m.workspaces_by_engine,null,2);document.getElementById('countries').textContent=JSON.stringify(m.users_by_country,null,2);status.textContent='Metrics loaded.'}catch(e){status.textContent='Admin request failed: '+(e.message||e)}}
+document.getElementById('login').onclick=async()=>{try{status.textContent='Signing in...';await signInWithPopup(auth,provider);document.getElementById('refresh').disabled=false;await refresh()}catch(e){status.textContent='Sign-in failed: '+(e.message||e)}};
+document.getElementById('refresh').onclick=refresh;
+</script>
+</body>
+</html>
