@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "provider": "firebase",
+  "database": "realtime_database",
+  "paths": {
+    "users": "users/{firebase_uid}",
+    "workspaces": "workspaces/{workspace_id}",
+    "workspace_members": "workspaces/{workspace_id}/members/{firebase_uid}",
+    "workspace_repository": "workspaces/{workspace_id}/repository",
+    "workspace_subscription": "workspaces/{workspace_id}/subscription"
+  },
+  "user_fields": [
+    "firebase_uid",
+    "email",
+    "display_name",
+    "github_username",
+    "country_code",
+    "region",
+    "created_at",
+    "last_seen_at"
+  ],
+  "workspace_fields": [
+    "name",
+    "owner_user_id",
+    "plan_id",
+    "engine",
+    "engine_version",
+    "repository"
+  ],
+  "security": {
+    "server_authoritative_membership": true,
+    "client_side_plan_checks_are_not_sufficient": true,
+    "collect_precise_location": false
+  }
+}
