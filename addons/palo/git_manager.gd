@@ -85,7 +85,12 @@ func _backup_directory(dir, absolute_path, packer, relative_path):
 
 func _run(args):
 	var output = []
-	var code = OS.execute("git", args, true, output)
+	# Git's -C flag makes the operation target the Godot project rather than
+	# the directory where the editor executable happens to live.
+	var git_args = ["-C", project_path]
+	for arg in args:
+		git_args.append(arg)
+	var code = OS.execute("git", git_args, true, output)
 	var text = _join_output(output)
 	last_output = text
 	if code != 0:
