@@ -26,9 +26,9 @@ func _enter_tree():
 	cloud_service.setup(firebase_auth, firebase_database, palo_account, workspace_manager)
 
 	panel = preload("res://addons/palo/palo_panel.gd").new()
+	github.setup(panel)
 	panel.setup(git, github, settings)
 	panel.setup_platform_services(cloud_service, palo_account, workspace_manager)
-	github.setup(panel)
 	add_control_to_dock(DOCK_SLOT_RIGHT_UL, panel)
 
 	github.connect("auth_succeeded", self, "_on_github_auth_succeeded")
@@ -37,12 +37,11 @@ func _enter_tree():
 
 func _load_firebase_user_config():
 	var file = File.new()
-	if file.file_exists("user://palo_firebase.json"):
-		if file.open("user://palo_firebase.json", File.READ) == OK:
-			var parsed = JSON.parse(file.get_as_text())
-			file.close()
-			if parsed.error == OK and typeof(parsed.result) == TYPE_DICTIONARY:
-				firebase_auth.configure(parsed.result)
+	if file.file_exists("user://palo_firebase.json") and file.open("user://palo_firebase.json", File.READ) == OK:
+		var parsed = JSON.parse(file.get_as_text())
+		file.close()
+		if parsed.error == OK and typeof(parsed.result) == TYPE_DICTIONARY:
+			firebase_auth.configure(parsed.result)
 
 func _on_github_auth_succeeded(access_token):
 	panel.set_platform_status("GitHub connected. Signing in to Palo...")
@@ -55,9 +54,7 @@ func _on_firebase_auth_succeeded(user_data, id_token):
 	palo_account.set_firebase_user(user_data)
 	panel.set_platform_account(palo_account)
 	panel.set_platform_status("Palo account connected. Syncing your profile...")
-	cloud_service.save_current_profile({
-		"github_username": str(user_data.get("github_username", ""))
-	})
+	cloud_service.save_current_profile({"github_username": str(user_data.get("github_username", ""))})
 	panel.load_cloud_workspaces()
 
 func _on_firebase_auth_failed(message):
