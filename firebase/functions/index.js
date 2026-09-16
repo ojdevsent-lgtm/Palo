@@ -38,8 +38,7 @@ exports.createWorkspace = onCall(async (request) => {
   }
 
   const db = getDatabase();
-  const workspaceRef = db.ref(`workspaces/${db.ref().push().key}`);
-  const workspaceId = workspaceRef.key;
+  const workspaceId = db.ref().push().key;
   const workspace = {
     id: workspaceId,
     name,
@@ -55,7 +54,10 @@ exports.createWorkspace = onCall(async (request) => {
     updated_at: Date.now()
   };
 
-  await workspaceRef.set(workspace);
+  const updates = {};
+  updates[`workspaces/${workspaceId}`] = workspace;
+  updates[`user_workspaces/${uid}/${workspaceId}`] = true;
+  await db.ref().update(updates);
   return workspace;
 });
 
@@ -75,12 +77,9 @@ exports.addWorkspaceMember = onCall(async (request) => {
     if (!workspace) return workspace;
     const members = workspace.members || {};
     if (!members[uid] || members[uid].role !== 'owner') return workspace;
+    if (members[memberUid]) return workspace;
 
-    const existing = members[memberUid];
-    if (existing) return workspace;
-
-    const planId = String(workspace.plan_id || 'free');
-    const plan = validatePlan(planId);
+    const plan = validatePlan(String(workspace.plan_id || 'free'));
     const count = Object.keys(members).length;
     if (plan.maxMembers !== null && count >= plan.maxMembers) return workspace;
 
@@ -102,6 +101,8 @@ exports.addWorkspaceMember = onCall(async (request) => {
     }
     throw new HttpsError('failed-precondition', 'The workspace has reached its member limit.');
   }
+
+  await db.ref(`user_workspaces/${memberUid}/${workspaceId}`).set(true);
   return { allowed: true, workspace };
 });
 
