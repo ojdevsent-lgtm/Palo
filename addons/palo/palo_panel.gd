@@ -70,7 +70,7 @@ func _build_ui():
 	add_child(repo_input)
 
 	repo_list = ItemList.new()
-	repo_list.custom_minimum_size = Vector2(0, 120)
+	repo_list.rect_min_size = Vector2(0, 120)
 	repo_list.connect("item_selected", self, "_on_repo_selected")
 	add_child(repo_list)
 
@@ -84,7 +84,7 @@ func _build_ui():
 	team_title.add_font_override("font_size", 14)
 	add_child(team_title)
 	team_list = ItemList.new()
-	team_list.custom_minimum_size = Vector2(0, 110)
+	team_list.rect_min_size = Vector2(0, 110)
 	add_child(team_list)
 
 	var upload_btn = Button.new()
@@ -174,7 +174,7 @@ func _filter_repositories(text):
 	for repo in repos:
 		var name = str(repo.get("full_name", repo.get("name", "")))
 		if needle == "" or name.to_lower().find(needle) >= 0:
-		repo_list.add_item(name)
+			repo_list.add_item(name)
 
 func _on_repo_selected(index):
 	var name = repo_list.get_item_text(index)
@@ -195,7 +195,9 @@ func _show_team(body):
 	else:
 		for member in body:
 			var login = str(member.get("login", "Unknown"))
-			team_list.add_item("@" + login + "  •  " + str(member.get("permissions", {}).get("push", false) ? "Can upload" : "Member"))
+			var permissions = member.get("permissions", {})
+			var role = "Can upload" if bool(permissions.get("push", false)) else "Member"
+			team_list.add_item("@" + login + "  •  " + role)
 	pending_api_action = "activity"
 	github.get_activity(selected_repo)
 
