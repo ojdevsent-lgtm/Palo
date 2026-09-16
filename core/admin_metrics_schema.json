@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "description": "Aggregate metrics used by the future Palo admin dashboard.",
+  "metrics": {
+    "total_users": "count(users)",
+    "active_users": "count(users where last_seen_at is within configured window)",
+    "total_workspaces": "count(workspaces)",
+    "paid_workspaces": "count(workspaces where plan_id != free)",
+    "users_by_country": "group users by country_code",
+    "users_by_region": "group users by region",
+    "workspaces_by_engine": "group workspaces by engine",
+    "plans": "count workspaces by plan_id"
+  },
+  "privacy": {
+    "precise_location": false,
+    "dashboard_should_use_aggregates": true
+  }
+}
