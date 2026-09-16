@@ -20,9 +20,10 @@ func _enter_tree():
 	workspace_manager = preload("res://addons/palo/workspace_manager.gd").new()
 
 	panel = preload("res://addons/palo/palo_panel.gd").new()
+	panel.setup(git, github, settings)
+	panel.setup_platform_services(null, palo_account, workspace_manager)
 	github.setup(panel)
 	firebase_database.setup(firebase_auth)
-	panel.setup(git, github, settings)
 	add_control_to_dock(DOCK_SLOT_RIGHT_UL, panel)
 
 func _exit_tree():
