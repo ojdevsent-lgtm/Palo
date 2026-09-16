@@ -1,0 +1,32 @@
+{
+  "plans": [
+    {
+      "id": "free",
+      "name": "Free",
+      "max_members": 1,
+      "price_ngn": 0,
+      "billing_period": "none"
+    },
+    {
+      "id": "team",
+      "name": "Team",
+      "max_members": 5,
+      "price_ngn": 1200,
+      "billing_period": "yearly"
+    },
+    {
+      "id": "team_plus",
+      "name": "Team Plus",
+      "max_members": 20,
+      "price_ngn": 2500,
+      "billing_period": "yearly"
+    },
+    {
+      "id": "large_team",
+      "name": "Large Team",
+      "max_members": null,
+      "price_ngn": 4500,
+      "billing_period": "yearly"
+    }
+  ]
+}
