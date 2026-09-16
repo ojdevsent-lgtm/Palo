@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "description": "Palo workspace data model. Persistent enforcement belongs to the backend.",
+  "workspace": {
+    "id": "workspace-id",
+    "name": "My Game Team",
+    "owner_user_id": "firebase-uid",
+    "plan_id": "free",
+    "engine": "godot",
+    "engine_version": "3.x",
+    "repository": {
+      "provider": "github",
+      "full_name": "owner/repository"
+    },
+    "members": [
+      {
+        "user_id": "firebase-uid",
+        "role": "owner"
+      }
+    ]
+  },
+  "access_rules": {
+    "free": {
+      "max_members": 1,
+      "message": "Team access required. This project is currently using the Palo Free plan, which supports one person. Contact the workspace administrator to upgrade the plan before adding another person."
+    },
+    "team": {
+      "max_members": 5
+    },
+    "team_plus": {
+      "max_members": 20
+    },
+    "large_team": {
+      "max_members": null
+    }
+  }
+}
