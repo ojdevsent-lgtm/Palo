@@ -75,6 +75,9 @@ func save_user(user_data):
 func load_user(firebase_uid):
 	return get_path("users/" + str(firebase_uid))
 
+func load_user_workspace_index(firebase_uid):
+	return get_path("user_workspaces/" + str(firebase_uid))
+
 func save_workspace(workspace_id, workspace_data):
 	return put_path("workspaces/" + str(workspace_id), workspace_data)
 

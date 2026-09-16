@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "plans": {
+    "free": {"max_members": 1, "price_ngn": 0, "billing_period": "none"},
+    "team": {"max_members": 5, "price_ngn": 1200, "billing_period": "yearly"},
+    "team_plus": {"max_members": 20, "price_ngn": 2500, "billing_period": "yearly"},
+    "large_team": {"max_members": null, "price_ngn": 4500, "billing_period": "yearly"}
+  },
+  "rules": {
+    "plan_changes_are_backend_only": true,
+    "payment_must_be_verified_before_upgrade": true,
+    "client_must_not_write_plan_id": true
+  },
+  "payment_provider": {
+    "status": "adapter_required",
+    "note": "Connect a supported payment provider and verify transactions server-side before changing a workspace plan."
+  }
+}
