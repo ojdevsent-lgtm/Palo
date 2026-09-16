@@ -1,0 +1,10 @@
+{
+  "apiKey": "PASTE_FIREBASE_WEB_API_KEY_HERE",
+  "authDomain": "palo-vx.firebaseapp.com",
+  "databaseURL": "https://palo-vx-default-rtdb.europe-west1.firebasedatabase.app",
+  "projectId": "palo-vx",
+  "storageBucket": "palo-vx.firebasestorage.app",
+  "messagingSenderId": "315319157646",
+  "appId": "1:315319157646:web:c716c2d4e305a5e49edadf",
+  "measurementId": "G-GYKPWKWS55"
+}
